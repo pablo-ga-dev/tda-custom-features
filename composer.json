@@ -1,0 +1,21 @@
+{
+    "name": "crear/tda-cf",
+    "description": "\"Tu Distintico Ambiental\" custom features",
+    "type": "wp-plugin",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Crear\\TdaCf\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "pablo-ga-dev",
+            "email": "pablo.ga@benowu.com"
+        }
+    ],
+    "minimum-stability": "alpha",
+    "require": {
+        "php-di/php-di": "^7.1"
+    }
+}

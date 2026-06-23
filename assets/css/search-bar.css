@@ -1,0 +1,66 @@
+.tda-search {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 760px;
+    margin: 1rem 0;
+}
+
+.tda-search__label {
+    font-weight: 600;
+}
+
+.tda-search__input {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #c8ced6;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.tda-search__status {
+    font-size: 0.9rem;
+    color: #4b5563;
+    min-height: 1.2em;
+}
+
+.tda-search__results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.tda-search__item {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #e3e7ec;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.tda-search__item span,
+.tda-search__empty {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.tda-search__link {
+    color: #2563eb;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.tda-search__link:hover,
+.tda-search__link:focus {
+    text-decoration: underline;
+}
+
+.tda-search__more {
+    justify-self: start;
+    padding: 0.55rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #c8ced6;
+    background: #f8fafc;
+    cursor: pointer;
+}
