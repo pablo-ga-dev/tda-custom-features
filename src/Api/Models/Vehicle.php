@@ -3,7 +3,6 @@
 namespace Crear\TdaCf\Api\Models;
 
 class Vehicle {
-	// TODO Falta rescatar la url de la foto principal
 	/**
 	 * @param array $data
 	 * @return array

@@ -6,9 +6,9 @@ use Psr\Container\ContainerInterface;
 use DI\ContainerBuilder;
 use Throwable;
 
-use Crear\TdaCf\Cli\TdaCommand;
 use Crear\TdaCf\Api\ApiServiceProvider;
 use Crear\TdaCf\Shortcode\ShortcodeServiceProvider;
+use Crear\TdaCf\WooCommerce\WooServiceProvider;
 
 class Plugin {
 	/** @var self|null */
@@ -22,6 +22,7 @@ class Plugin {
 
 		$builder->addDefinitions( ApiServiceProvider::definitions() );
 		$builder->addDefinitions( ShortcodeServiceProvider::definitions() );
+		$builder->addDefinitions( WooServiceProvider::definitions() );
 
 		$this->container = $builder->build();
 	}
@@ -58,13 +59,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function run() {
-		if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
-			$command = $this->get( TdaCommand::class);
-			if ( $command instanceof TdaCommand ) {
-				call_user_func( [ 'WP_CLI', 'add_command' ], 'tda', $command );
-			}
-		}
-
 		$apiProvider = $this->get( ApiServiceProvider::class);
 		if ( $apiProvider instanceof ApiServiceProvider ) {
 			$apiProvider->init();
@@ -73,6 +67,11 @@ class Plugin {
 		$shortcodeProvider = $this->get( ShortcodeServiceProvider::class);
 		if ( $shortcodeProvider instanceof ShortcodeServiceProvider ) {
 			$shortcodeProvider->init();
+		}
+
+		$wooProvider = $this->get( WooServiceProvider::class);
+		if ( $wooProvider instanceof WooServiceProvider ) {
+			$wooProvider->init();
 		}
 	}
 }

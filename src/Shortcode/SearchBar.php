@@ -4,40 +4,36 @@ namespace Crear\TdaCf\Shortcode;
 
 use Crear\TdaCf\Api\VehicleRestController;
 
-class SearchBar {
+class SearchBar extends Shortcode {
 	public function __construct() {
 	}
 
 	/**
 	 * Shortcode callback. Must return HTML, never echo.
 	 *
-	 * @param array $atts
 	 * @return string
 	 */
-	public function render( array $atts = [] ): string {
+	public function render(): string {
 		$this->enqueueAssets();
 
 		ob_start();
-		include plugin_dir_path( __FILE__ ) . '/../../views/search-bar.php';
+		include $this->getViewsPath('search-bar.php');
 		return ob_get_clean();
 	}
 
 	private function enqueueAssets(): void {
-		$baseUrl = plugin_dir_url( __FILE__ ) . '../../assets/';
-		$baseDir = plugin_dir_path( __FILE__ ) . '../../assets/';
-
 		wp_enqueue_style(
 			'tda-search-bar',
-			$baseUrl . 'css/search-bar.css',
+			$this->getAssetsUrl('css/search-bar.css'),
 			[],
-			filemtime( $baseDir . 'css/search-bar.css' )
+			filemtime( $this->getAssetsPath('css/search-bar.css') )
 		);
 
 		wp_enqueue_script(
 			'tda-search-bar',
-			$baseUrl . 'js/search-bar.js',
+			$this->getAssetsUrl('js/search-bar.js'),
 			[],
-			filemtime( $baseDir . 'js/search-bar.js' ),
+			filemtime( $this->getAssetsPath('js/search-bar.js') ),
 			true
 		);
 

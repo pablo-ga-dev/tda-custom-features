@@ -47,6 +47,18 @@ class VehicleRestController {
 				],
 			],
 		] );
+
+		register_rest_route( self::REST_NAMESPACE, self::REST_ROUTE . '/(?P<id>\\d+)', [
+			'methods' => 'GET',
+			'callback' => [ $this, 'getVehicleById' ],
+			'permission_callback' => '__return_true',
+			'args' => [
+				'id' => [
+					'type' => 'integer',
+					'required' => true,
+				],
+			],
+		] );
 	}
 
 	public function getVehicles( \WP_REST_Request $request ): \WP_REST_Response {
@@ -103,6 +115,35 @@ class VehicleRestController {
 		set_transient( $cacheKey, $response, MINUTE_IN_SECONDS );
 
 		return new \WP_REST_Response( $response, 200 );
+	}
+
+	public function getVehicleById( \WP_REST_Request $request ): \WP_REST_Response {
+		$vehicleId = (int) $request->get_param( 'id' );
+
+		if ( $vehicleId <= 0 || get_post_type( $vehicleId ) !== self::POST_TYPE || get_post_status( $vehicleId ) !== 'publish' ) {
+			return new \WP_REST_Response( [
+				'message' => 'Vehicle not found.',
+			], 404 );
+		}
+
+		$item = $this->vehicle->fromApi( [
+			'id' => $vehicleId,
+			'title' => get_the_title( $vehicleId ),
+			'link' => get_permalink( $vehicleId ),
+			'acf' => [
+				'marca' => get_post_meta( $vehicleId, 'marca', true ),
+				'modelo' => get_post_meta( $vehicleId, 'modelo', true ),
+				'combustible' => get_post_meta( $vehicleId, 'combustible', true ),
+				'potencia' => get_post_meta( $vehicleId, 'potencia', true ),
+				'carroceria' => get_post_meta( $vehicleId, 'carroceria', true ),
+				'codigo_de_motor' => get_post_meta( $vehicleId, 'codigo_de_motor', true ),
+				'etiqueta_ambiental' => get_post_meta( $vehicleId, 'etiqueta_ambiental', true ),
+			],
+		] );
+
+		return new \WP_REST_Response( [
+			'item' => $item,
+		], 200 );
 	}
 
 	private function findVehicleIds( string $queryText ): array {
