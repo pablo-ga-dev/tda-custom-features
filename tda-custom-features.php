@@ -2,7 +2,7 @@
 
 /* Plugin Name: TDA Custom Features
  * Description: Custom features for TDA.
- * Version: 1.0
+ * Version: 1.1.0
  * Author: Crear & Co
  * Author URI: https://www.crear-digital.com/
  * License: GPL2

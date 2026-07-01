@@ -35,9 +35,8 @@
         var input = root.querySelector('[data-tda-search-input]');
         var status = root.querySelector('[data-tda-search-status]');
         var results = root.querySelector('[data-tda-search-results]');
-        var moreButton = root.querySelector('[data-tda-search-more]');
 
-        if (!input || !status || !results || !moreButton) {
+        if (!input || !status || !results) {
             return;
         }
 
@@ -45,15 +44,39 @@
         var hasMore = false;
         var query = '';
         var isLoading = false;
+        var renderedCount = 0;
 
         var setStatus = function (text) {
             status.textContent = text || '';
         };
 
+        var removeBottomLoading = function () {
+            var loadingItem = results.querySelector('.tda-search__loading');
+            if (loadingItem) {
+                loadingItem.remove();
+            }
+        };
+
+        var setBottomLoading = function (isVisible) {
+            removeBottomLoading();
+
+            if (!isVisible) {
+                return;
+            }
+
+            var loadingItem = document.createElement('li');
+            loadingItem.className = 'tda-search__loading';
+            loadingItem.textContent = 'Cargando...';
+            results.appendChild(loadingItem);
+        };
+
         var renderItems = function (items, append) {
             if (!append) {
                 results.innerHTML = '';
+                renderedCount = 0;
             }
+
+            removeBottomLoading();
 
             if (!items.length && !append) {
                 results.innerHTML = '<li class="tda-search__empty">No hay coincidencias</li>';
@@ -63,21 +86,40 @@
             items.forEach(function (item) {
                 var li = document.createElement('li');
                 li.className = 'tda-search__item';
-                var title = escapeHtml(item.title || '');
-                var vehicleName = escapeHtml(((item.marca || '') + ' ' + (item.modelo || '')).trim());
+                var title = escapeHtml(item.title || 'Ver vehiculo');
                 var url = typeof item.url === 'string' ? item.url : '';
-                var titleMarkup = url
-                    ? '<a class="tda-search__link" href="' + escapeHtml(url) + '">' + title + '</a>'
-                    : '<span>' + title + '</span>';
-                li.innerHTML =
-                    '<strong>' + vehicleName + '</strong>' +
-                    titleMarkup;
+                li.innerHTML = url
+                    ? '<a class="tda-search__item-link" href="' + escapeHtml(url) + '">' + title + '</a>'
+                    : '<span class="tda-search__item-link tda-search__item-link--disabled">' + title + '</span>';
                 results.appendChild(li);
+                renderedCount += 1;
             });
         };
 
-        var setMoreVisibility = function () {
-            moreButton.hidden = !hasMore || isLoading;
+        var loadNextPage = function () {
+            if (!hasMore || isLoading || !query) {
+                return;
+            }
+
+            page += 1;
+            fetchVehicles(true);
+        };
+
+        var maybeLoadUntilScrollable = function () {
+            if (!hasMore || isLoading || !query) {
+                return;
+            }
+
+            if (results.scrollHeight <= results.clientHeight + 8) {
+                loadNextPage();
+            }
+        };
+
+        var resetResults = function () {
+            results.innerHTML = '';
+            hasMore = false;
+            renderedCount = 0;
+            setStatus('');
         };
 
         var fetchVehicles = function (append) {
@@ -86,7 +128,7 @@
             }
 
             isLoading = true;
-            setMoreVisibility();
+            setBottomLoading(append);
             setStatus('Buscando...');
 
             var url = new URL(config.endpoint, window.location.origin);
@@ -113,17 +155,25 @@
                     setStatus(items.length ? items.length + ' resultados' : 'Sin resultados');
                 })
                 .catch(function () {
+                    hasMore = false;
                     setStatus('No se pudo completar la busqueda');
                 })
                 .finally(function () {
                     isLoading = false;
-                    setMoreVisibility();
+                    setBottomLoading(false);
+                    maybeLoadUntilScrollable();
                 });
         };
 
         var onInput = debounce(function (value) {
             query = value.trim();
             page = 1;
+
+            if (!query) {
+                resetResults();
+                return;
+            }
+
             fetchVehicles(false);
         }, 250);
 
@@ -131,14 +181,18 @@
             onInput(event.target.value || '');
         });
 
-        moreButton.addEventListener('click', function () {
-            if (!hasMore || isLoading) {
+        results.addEventListener('scroll', function () {
+            if (!hasMore || isLoading || !query) {
                 return;
             }
-            page += 1;
-            fetchVehicles(true);
+
+            var threshold = 24;
+            var distanceToBottom = results.scrollHeight - (results.scrollTop + results.clientHeight);
+            if (distanceToBottom <= threshold) {
+                loadNextPage();
+            }
         });
 
-        fetchVehicles(false);
+        resetResults();
     });
 })();

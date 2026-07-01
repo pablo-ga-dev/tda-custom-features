@@ -3,7 +3,7 @@
 namespace Crear\TdaCf\Shared;
 
 class Config {
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.1.0';
     public static function pluginPath(): string {
         return plugin_dir_path( __FILE__ ) . '../../';
     }

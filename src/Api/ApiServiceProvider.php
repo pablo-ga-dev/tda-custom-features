@@ -4,7 +4,6 @@ namespace Crear\TdaCf\Api;
 use Crear\TdaCf\Core\ServiceProvider;
 use Crear\TdaCf\Api\VehicleApiClient;
 use Crear\TdaCf\Api\Models\Vehicle;
-use Crear\TdaCf\Cli\TdaCommand;
 use function DI\autowire;
 
 class ApiServiceProvider implements ServiceProvider {
@@ -20,7 +19,6 @@ class ApiServiceProvider implements ServiceProvider {
 			Vehicle::class => autowire(),
 			VehicleApiClient::class => autowire(),
 			VehicleRestController::class => autowire(),
-			TdaCommand::class => autowire(),
 			self::class => autowire(),
 		];
 	}
