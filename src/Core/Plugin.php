@@ -9,6 +9,7 @@ use Throwable;
 use Crear\TdaCf\Api\ApiServiceProvider;
 use Crear\TdaCf\Shortcode\ShortcodeServiceProvider;
 use Crear\TdaCf\WooCommerce\WooServiceProvider;
+use Crear\TdaCf\Wordpress\WordpressServiceProvider;
 
 class Plugin {
 	/** @var self|null */
@@ -23,6 +24,7 @@ class Plugin {
 		$builder->addDefinitions( ApiServiceProvider::definitions() );
 		$builder->addDefinitions( ShortcodeServiceProvider::definitions() );
 		$builder->addDefinitions( WooServiceProvider::definitions() );
+		$builder->addDefinitions( WordpressServiceProvider::definitions() );
 
 		$this->container = $builder->build();
 	}
@@ -72,6 +74,11 @@ class Plugin {
 		$wooProvider = $this->get( WooServiceProvider::class);
 		if ( $wooProvider instanceof WooServiceProvider ) {
 			$wooProvider->init();
+		}
+
+		$wordpressProvider = $this->get( WordpressServiceProvider::class);
+		if ( $wordpressProvider instanceof WordpressServiceProvider ) {
+			$wordpressProvider->init();
 		}
 	}
 }

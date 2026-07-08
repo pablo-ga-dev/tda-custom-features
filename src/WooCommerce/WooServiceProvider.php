@@ -7,6 +7,7 @@ use function DI\autowire;
 class WooServiceProvider implements ServiceProvider {
 	private ClientFormSubmission $clientFormSubmission;
 	private CartOrderMeta $cartOrderMeta;
+	private CheckoutFields $checkoutFields;
 	private WooRedirects $wooRedirects;
 
 	public static function definitions(): array {
@@ -14,14 +15,16 @@ class WooServiceProvider implements ServiceProvider {
 			FormData::class => autowire(),
 			ClientFormSubmission::class => autowire(),
 			CartOrderMeta::class => autowire(),
+			CheckoutFields::class => autowire(),
 			WooRedirects::class => autowire(),
 			self::class => autowire(),
 		];
 	}
 
-	public function __construct( ClientFormSubmission $clientFormSubmission, CartOrderMeta $cartOrderMeta, WooRedirects $wooRedirects ) {
+	public function __construct( ClientFormSubmission $clientFormSubmission, CartOrderMeta $cartOrderMeta, CheckoutFields $checkoutFields, WooRedirects $wooRedirects ) {
 		$this->clientFormSubmission = $clientFormSubmission;
 		$this->cartOrderMeta = $cartOrderMeta;
+		$this->checkoutFields = $checkoutFields;
 		$this->wooRedirects = $wooRedirects;
 	}
 
@@ -36,5 +39,6 @@ class WooServiceProvider implements ServiceProvider {
 		add_filter( 'woocommerce_add_cart_item_data', [ $this->clientFormSubmission, 'ensureCartItemUnique' ], 10, 4 );
 		add_filter( 'woocommerce_get_item_data', [ $this->cartOrderMeta, 'renderCartItemMeta' ], 10, 2 );
 		add_action( 'woocommerce_checkout_create_order_line_item', [ $this->cartOrderMeta, 'storeOrderItemMeta' ], 10, 4 );
+		$this->checkoutFields->init();
 	}
 }

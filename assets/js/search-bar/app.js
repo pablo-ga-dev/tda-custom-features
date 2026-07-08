@@ -152,7 +152,7 @@
                     var items = Array.isArray(data.items) ? data.items : [];
                     hasMore = Boolean(data.has_more);
                     renderItems(items, append);
-                    setStatus(items.length ? items.length + ' resultados' : 'Sin resultados');
+                    setStatus(renderedCount ? renderedCount + ' resultados' : 'Sin resultados');
                 })
                 .catch(function () {
                     hasMore = false;

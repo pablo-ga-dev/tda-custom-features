@@ -88,20 +88,7 @@ class VehicleRestController {
 
 		$items = [];
 		foreach ( $pagedIds as $vehicleId ) {
-			$items[] = $this->vehicle->fromApi( [
-				'id' => $vehicleId,
-				'title' => get_the_title( $vehicleId ),
-				'link' => get_permalink( $vehicleId ),
-				'acf' => [
-					'marca' => get_post_meta( $vehicleId, 'marca', true ),
-					'modelo' => get_post_meta( $vehicleId, 'modelo', true ),
-					'combustible' => get_post_meta( $vehicleId, 'combustible', true ),
-					'potencia' => get_post_meta( $vehicleId, 'potencia', true ),
-					'carroceria' => get_post_meta( $vehicleId, 'carroceria', true ),
-					'codigo_de_motor' => get_post_meta( $vehicleId, 'codigo_de_motor', true ),
-					'etiqueta_ambiental' => get_post_meta( $vehicleId, 'etiqueta_ambiental', true ),
-				],
-			] );
+			$items[] = $this->buildVehicleResponse( $vehicleId );
 		}
 
 		$response = [
@@ -126,20 +113,7 @@ class VehicleRestController {
 			], 404 );
 		}
 
-		$item = $this->vehicle->fromApi( [
-			'id' => $vehicleId,
-			'title' => get_the_title( $vehicleId ),
-			'link' => get_permalink( $vehicleId ),
-			'acf' => [
-				'marca' => get_post_meta( $vehicleId, 'marca', true ),
-				'modelo' => get_post_meta( $vehicleId, 'modelo', true ),
-				'combustible' => get_post_meta( $vehicleId, 'combustible', true ),
-				'potencia' => get_post_meta( $vehicleId, 'potencia', true ),
-				'carroceria' => get_post_meta( $vehicleId, 'carroceria', true ),
-				'codigo_de_motor' => get_post_meta( $vehicleId, 'codigo_de_motor', true ),
-				'etiqueta_ambiental' => get_post_meta( $vehicleId, 'etiqueta_ambiental', true ),
-			],
-		] );
+		$item = $this->buildVehicleResponse( $vehicleId );
 
 		return new \WP_REST_Response( [
 			'item' => $item,
@@ -192,5 +166,30 @@ class VehicleRestController {
 		} );
 
 		return array_map( 'intval', $mergedIds );
+	}
+
+	private function buildVehicleResponse( int $vehicleId ): array {
+		$thumbnailId = get_post_thumbnail_id( $vehicleId );
+		$thumbnailUrl = $thumbnailId ? get_the_post_thumbnail_url( $vehicleId, 'large' ) : false;
+		$imageAlt = $thumbnailId ? get_post_meta( $thumbnailId, '_wp_attachment_image_alt', true ) : '';
+
+		return $this->vehicle->fromApi( [
+			'id' => $vehicleId,
+			'title' => get_the_title( $vehicleId ),
+			'link' => get_permalink( $vehicleId ),
+			'image' => [
+				'url' => $thumbnailUrl ? (string) $thumbnailUrl : null,
+				'alt' => is_string( $imageAlt ) && $imageAlt !== '' ? $imageAlt : get_the_title( $vehicleId ),
+			],
+			'acf' => [
+				'marca' => get_post_meta( $vehicleId, 'marca', true ),
+				'modelo' => get_post_meta( $vehicleId, 'modelo', true ),
+				'combustible' => get_post_meta( $vehicleId, 'combustible', true ),
+				'potencia' => get_post_meta( $vehicleId, 'potencia', true ),
+				'carroceria' => get_post_meta( $vehicleId, 'carroceria', true ),
+				'codigo_de_motor' => get_post_meta( $vehicleId, 'codigo_de_motor', true ),
+				'etiqueta_ambiental' => get_post_meta( $vehicleId, 'etiqueta_ambiental', true ),
+			],
+		] );
 	}
 }

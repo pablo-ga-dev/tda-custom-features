@@ -1,0 +1,214 @@
+.tda-search-page {
+    --tda-search-page-accent: #07e49f;
+    --tda-search-page-accent-dark: #023c2d;
+    --tda-search-page-border: #d9e5df;
+    --tda-search-page-surface: #ffffff;
+    --tda-search-page-muted: #5b6b63;
+    display: grid;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.tda-search-page__toolbar {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.tda-search-page__bar-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0 0.75rem;
+    background: var(--tda-search-page-surface);
+    border: 1px solid var(--tda-search-page-border);
+    border-radius: 999px;
+    box-shadow: 0 14px 35px -28px rgba(2, 60, 45, 0.45);
+}
+
+.tda-search-page__bar-wrapper:focus-within {
+    border-color: var(--tda-search-page-accent);
+    box-shadow: 0 18px 35px -26px rgba(7, 228, 159, 0.45);
+}
+
+.tda-search-page__lens,
+.tda-search-page__reset,
+.tda-search-page__page-button {
+    border: none;
+    background: none;
+}
+
+.tda-search-page__lens,
+.tda-search-page__reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #7a8a82;
+}
+
+.tda-search-page__lens:hover {
+    background-color: transparent;
+    color: var(--tda-search-page-accent-dark);
+}
+
+.tda-search-page__input {
+    width: 100%;
+    min-height: 52px;
+    border: none !important;
+    background: transparent;
+    color: #14211c;
+    font-size: 1rem;
+    padding: 0 0.75rem;
+}
+
+.tda-search-page__input:focus {
+    outline: none;
+}
+
+.tda-search-page__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.tda-search-page__reset {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.tda-search-page__input:not(:placeholder-shown)~.tda-search-page__reset {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tda-search-page__status {
+    color: var(--tda-search-page-muted);
+    font-size: 0.95rem;
+}
+
+.tda-search-page__results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1rem;
+}
+
+.tda-search-page__empty,
+.tda-search-page__loading,
+.tda-search-page__error {
+    grid-column: 1 / -1;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--tda-search-page-border);
+    border-radius: 20px;
+    background: #f7faf8;
+    color: var(--tda-search-page-muted);
+}
+
+.tda-search-page__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--tda-search-page-border);
+    border-radius: 20px;
+    background: var(--tda-search-page-surface);
+    box-shadow: 0 14px 30px -28px rgba(2, 60, 45, 0.45);
+}
+
+.tda-search-page__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #f2f6f4;
+}
+
+.tda-search-page__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: stretch;
+    object-fit: cover;
+}
+
+.tda-search-page__card-title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.35;
+}
+
+.tda-search-page__card-link {
+    color: var(--tda-search-page-accent-dark);
+    text-decoration: none;
+}
+
+.tda-search-page__card-link:hover,
+.tda-search-page__card-link:focus {
+    text-decoration: underline;
+}
+
+.tda-search-page__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tda-search-page__meta-item {
+    display: inline-flex;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: #eef8f4;
+    color: #194839;
+    font-size: 0.85rem;
+}
+
+.tda-search-page__footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.tda-search-page__details-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0.65rem 1rem;
+    border-radius: 999px;
+    background: var(--tda-search-page-accent-dark);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.tda-search-page__details-link:hover,
+.tda-search-page__details-link:focus {
+    background: #0b5a45;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.tda-search-page__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.tda-search-page__page-label {
+    color: #23332c;
+    font-size: 0.95rem;
+}
+
+.tda-search-page__scroll-sentinel {
+    width: 100%;
+    height: 1px;
+}
+
+@media (max-width: 640px) {
+    .tda-search-page__results {
+        grid-template-columns: 1fr;
+    }
+
+    .tda-search-page__pagination {
+        justify-content: stretch;
+    }
+}

@@ -14,4 +14,13 @@ class AssetsManager {
             true
         );
     }
+
+    public function enqueueFrontendStyles(): void {
+        wp_enqueue_style(
+            'tda-checkout-css',
+            Config::assetsUrl() . 'css/checkout.css',
+            [],
+            Config::VERSION
+        );
+    }
 }

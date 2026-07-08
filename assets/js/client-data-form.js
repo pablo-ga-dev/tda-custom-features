@@ -83,6 +83,16 @@
             return;
         }
 
+        var openWooCustomCart = function () {
+            var openButton = document.querySelector('.wcc-open-btn');
+            if (!openButton) {
+                return false;
+            }
+
+            openButton.click();
+            return true;
+        };
+
         form.addEventListener('submit', function (event) {
             event.preventDefault();
             debugLog('formSubmit:start');
@@ -123,6 +133,13 @@
                     });
                 })
                 .then(function (data) {
+                    if (data && data.open_cart) {
+                        if (!openWooCustomCart() && data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        }
+                        return;
+                    }
+
                     if (data && data.redirect_url) {
                         window.location.href = data.redirect_url;
                         return;

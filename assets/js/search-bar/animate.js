@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let spacer = null;
     let isActive = false;
     let travelState = null;
+    let previousHtmlOverflow = '';
+    let previousBodyOverflow = '';
 
     const ACTIVE_STATUS_TEXT = 'Introduce un vehículo para mostrar resultados';
     const ACTIVE_Z_INDEX = '9999';
@@ -66,6 +68,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         status.style.display = '';
         status.style.opacity = '';
+    };
+
+    const lockPageScroll = function () {
+        previousHtmlOverflow = document.documentElement.style.overflow;
+        previousBodyOverflow = document.body.style.overflow;
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+    };
+
+    const unlockPageScroll = function () {
+        document.documentElement.style.overflow = previousHtmlOverflow;
+        document.body.style.overflow = previousBodyOverflow;
     };
 
     const setActiveStatus = function () {
@@ -127,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
         searchBar.style.width = rect.width + 'px';
         searchBar.style.margin = '0';
         searchBar.style.zIndex = ACTIVE_Z_INDEX;
+        lockPageScroll();
 
         if (animeRuntime) {
             animate('.tda-search__bar-wrapper', {
@@ -180,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
             isActive = false;
             travelState = null;
             clearFloatingStyles();
+            unlockPageScroll();
         };
 
         if (!animeRuntime || !travelState) {
@@ -204,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     background: '',
                     zIndex: '',
                     boxShadow: '',
-                    borderRadius: '',
+                    borderRadius: '16px',
                     boxShadow: '',
                     duration: 200,
                     easing: 'ease-in-out'
@@ -242,6 +258,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('click', function (event) {
         if (Date.now() < ignoreOutsideClickUntil) {
+            return;
+        }
+
+        if (!isActive) {
             return;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Crear\TdaCf\WooCommerce;
 
+use Crear\TdaCf\Wordpress\AdminSettingsPage;
 use Throwable;
 
 class ClientFormSubmission {
@@ -50,8 +51,8 @@ class ClientFormSubmission {
 			return;
 		}
 
-		wp_safe_redirect( wc_get_checkout_url() );
-		exit;
+		wc_add_notice( __( 'Tramite anadido al carrito con tus datos.', 'tda-custom-features' ), 'success' );
+		return;
 	}
 
 	public function registerRestRoutes(): void {
@@ -101,13 +102,13 @@ class ClientFormSubmission {
 		}
 
 		return new \WP_REST_Response( [
-			'message' => __( 'Etiqueta anadida al carrito con tus datos.', 'tda-custom-features' ),
-			'redirect_url' => wc_get_checkout_url(),
+			'message' => __( 'Tramite anadido al carrito con tus datos.', 'tda-custom-features' ),
+			'open_cart' => true,
 		], 200 );
 	}
 
 	public function ensureCartItemUnique( array $cartItemData, int $productId, int $variationId, int $quantity ): array {
-		if ( isset( $cartItemData['tda_form_submission'] ) ) {
+		if ( isset( $cartItemData['tda_form_submission'] ) || isset( $cartItemData['tda_submission_token'] ) ) {
 			$cartItemData['tda_unique_key'] = md5( microtime( true ) . wp_rand() );
 		}
 
@@ -116,11 +117,6 @@ class ClientFormSubmission {
 
 	private function isClientDataFormPost( array $payload ): bool {
 		$required = [
-			'client_name',
-			'client_email',
-			'client_phone',
-			'client_nif',
-			'vehicle_vin',
 			'vehicle_plate',
 		];
 
@@ -162,21 +158,29 @@ class ClientFormSubmission {
 			return new \WP_Error( 'tda_invalid_vehicle', __( 'Vehiculo no valido.', 'tda-custom-features' ) );
 		}
 
-		$productId = (int) get_post_meta( $vehiclePostId, 'etiqueta_ambiental', true );
-        
-		if ( $productId <= 0 ) {
-			return new \WP_Error( 'tda_missing_tag', __( 'No se encontro la etiqueta para este vehiculo.', 'tda-custom-features' ) );
+		$tramiteProductId = (int) get_option( AdminSettingsPage::OPTION_TRAMITE_PRODUCT_ID, 0 );
+
+		if ( $tramiteProductId <= 0 ) {
+			return new \WP_Error( 'tda_missing_tramite_product', __( 'No hay un producto de tramite configurado en la administracion.', 'tda-custom-features' ) );
 		}
 
-		$product = wc_get_product( $productId );
-		if ( ! $product || ! $product->is_purchasable() ) {
-			return new \WP_Error( 'tda_unavailable_tag', __( 'La etiqueta asociada no esta disponible para compra.', 'tda-custom-features' ) );
+		$tramiteProduct = wc_get_product( $tramiteProductId );
+		if ( ! $tramiteProduct || ! $tramiteProduct->is_purchasable() ) {
+			return new \WP_Error( 'tda_unavailable_tramite_product', __( 'El producto de tramite configurado no esta disponible para compra.', 'tda-custom-features' ) );
+		}
+
+		if ( ! $this->hasUploadedFile( $files, 'vehicle_technical_sheet' ) ) {
+			return new \WP_Error( 'tda_missing_technical_sheet', __( 'Debes adjuntar la ficha tecnica del vehiculo.', 'tda-custom-features' ) );
+		}
+
+		if ( ! $this->hasUploadedFile( $files, 'vehicle_registration_permit' ) ) {
+			return new \WP_Error( 'tda_missing_registration_permit', __( 'Debes adjuntar el permiso de circulacion.', 'tda-custom-features' ) );
 		}
 
 		$cartItemData = [
-			'tda_client_data' => $this->formData->extractClientData( $payload ),
 			'tda_vehicle_data' => $this->formData->extractVehicleData( $vehiclePostId, $payload ),
 			'tda_uploaded_files' => $this->formData->uploadClientFiles( $files ),
+			'tda_submission_token' => wp_generate_uuid4(),
 			'tda_form_submission' => true,
 		];
 
@@ -185,15 +189,43 @@ class ClientFormSubmission {
 			return new \WP_Error( 'tda_cart_unavailable', __( 'No se pudo inicializar el carrito de WooCommerce.', 'tda-custom-features' ) );
 		}
 
-		$added = $cart->add_to_cart( $productId, 1, 0, [], $cartItemData );
+		$tramiteCartItemKey = $cart->add_to_cart( $tramiteProductId, 1, 0, [], $cartItemData );
 
-		if ( ! $added ) {
-			return new \WP_Error( 'tda_cart_add_failed', __( 'No se pudo anadir la etiqueta al carrito.', 'tda-custom-features' ) );
+		if ( ! $tramiteCartItemKey ) {
+			return new \WP_Error( 'tda_cart_add_failed', __( 'No se pudo anadir el tramite al carrito.', 'tda-custom-features' ) );
 		}
 
 		return [
-			'product_id' => $productId,
+			'tramite_product_id' => $tramiteProductId,
 		];
+	}
+
+	private function hasUploadedFile( array $files, string $fieldName ): bool {
+		if ( empty( $files[ $fieldName ] ) || ! is_array( $files[ $fieldName ] ) ) {
+			return false;
+		}
+
+		$file = $files[ $fieldName ];
+
+		if ( isset( $file['name'] ) && is_array( $file['name'] ) ) {
+			foreach ( $file['name'] as $index => $name ) {
+				if ( (string) $name === '' ) {
+					continue;
+				}
+
+				$errorCode = isset( $file['error'][ $index ] ) ? (int) $file['error'][ $index ] : UPLOAD_ERR_NO_FILE;
+				if ( $errorCode === UPLOAD_ERR_OK ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		$name = isset( $file['name'] ) ? (string) $file['name'] : '';
+		$errorCode = isset( $file['error'] ) ? (int) $file['error'] : UPLOAD_ERR_NO_FILE;
+
+		return $name !== '' && $errorCode === UPLOAD_ERR_OK;
 	}
 
 	private function getWooCart() {

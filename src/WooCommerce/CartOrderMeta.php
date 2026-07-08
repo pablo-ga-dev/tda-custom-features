@@ -8,20 +8,8 @@ class CartOrderMeta {
 			return $itemData;
 		}
 
-		$clientData = isset( $cartItem['tda_client_data'] ) && is_array( $cartItem['tda_client_data'] ) ? $cartItem['tda_client_data'] : [];
 		$vehicleData = isset( $cartItem['tda_vehicle_data'] ) && is_array( $cartItem['tda_vehicle_data'] ) ? $cartItem['tda_vehicle_data'] : [];
 		$files = isset( $cartItem['tda_uploaded_files'] ) && is_array( $cartItem['tda_uploaded_files'] ) ? $cartItem['tda_uploaded_files'] : [];
-
-		foreach ( $clientData as $label => $value ) {
-			if ( $value === '' ) {
-				continue;
-			}
-
-			$itemData[] = [
-				'name' => sprintf( 'Cliente - %s', $label ),
-				'value' => (string) $value,
-			];
-		}
 
 		foreach ( $vehicleData as $label => $value ) {
 			if ( $value === '' ) {
@@ -64,15 +52,8 @@ class CartOrderMeta {
 			return;
 		}
 
-		$clientData = isset( $values['tda_client_data'] ) && is_array( $values['tda_client_data'] ) ? $values['tda_client_data'] : [];
 		$vehicleData = isset( $values['tda_vehicle_data'] ) && is_array( $values['tda_vehicle_data'] ) ? $values['tda_vehicle_data'] : [];
 		$files = isset( $values['tda_uploaded_files'] ) && is_array( $values['tda_uploaded_files'] ) ? $values['tda_uploaded_files'] : [];
-
-		foreach ( $clientData as $label => $value ) {
-			if ( $value !== '' ) {
-				$item->add_meta_data( sprintf( 'Cliente - %s', $label ), (string) $value, true );
-			}
-		}
 
 		foreach ( $vehicleData as $label => $value ) {
 			if ( $value !== '' ) {
